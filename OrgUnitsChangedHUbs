@@ -1,0 +1,12 @@
+select
+org_unit,
+Org_Unit_Description,
+Hub,
+Region,
+max(Effective_Date) as LastDate,
+FROM
+  `unopsreporting.Organisation.Organisational_Structures` AS Table1
+where org_unit in(select distinct current_org_unit from `unopsreporting.Partners.Partner_Engagements` where current_region ="")
+
+Group by 1,2,3,4
+ORDER BY 1 DESC ,5
