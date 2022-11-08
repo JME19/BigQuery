@@ -1,0 +1,30 @@
+  /*
+SELECT
+  Org_unit,
+  org_unit_description,
+  Hub_description,
+  effective_date,
+  */
+SELECT
+  table1.org_unit_description,
+  SUM(SAFE_CAST(REGEXP_REPLACE(table1.Org_Unit,'[^0-9 ]','') AS int))/COUNT(table1.Org_Unit) AS SameSAme,
+  SAFE_CAST(REGEXP_REPLACE(table2.org_unit,'[^0-9 ]','') AS int) AS CurrentOrgUnit,
+  CASE
+    WHEN SUM(SAFE_CAST(REGEXP_REPLACE(table1.Org_Unit,'[^0-9 ]','') AS int))/COUNT(table1.Org_Unit) = SAFE_CAST(REGEXP_REPLACE(table2.org_unit,'[^0-9 ]','') AS int) THEN "NoChanges"
+  ELSE
+  "Changed"
+END
+  AS ORGCHECK
+FROM
+  `unopsreporting.Organisation.Organisational_Structures` AS Table1
+LEFT JOIN
+  `unopsreporting.Organisation.Organisational_Structures` AS table2
+ON
+  table1.Org_Unit_Description=table2.Org_Unit_Description
+WHERE
+  table2.effective_date = '2022-11-04' /*AND Org_Unit = "B1201"*/
+GROUP BY
+  org_unit_description,
+  table2.org_unit
+ORDER BY
+  4 ASC
