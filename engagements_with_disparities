@@ -1,0 +1,99 @@
+/*Disparities IN the engagements amounts
+Here I will pull OUT the total amount OF money FOR those engagements IN which there IS a mismatch higher than 1000 BETWEEN both datasets the comparison IS coming from
+summing the engagments individually IN the mentioned datasets. Ultimately this generates the list OF engagements that don't match*/
+WITH
+  ENG AS (
+  SELECT
+    Base_Engagement,
+    SUM(Partner_Engagement_Addition_Amount) AS EngAmount
+  FROM
+    `unopsreportinguat.Engagements.Engagement_Funding_Sources_AE`
+  WHERE
+    Finalised_Flag ="Yes"
+  GROUP BY
+    1),
+  CORPPERF AS (
+  SELECT
+    Base_Engagement,
+    SUM(EA_Amount) AS CorpENG
+  FROM
+    `unopsreporting.Corporate_Performance.Corporate_Performance_Details_Report`
+  GROUP BY
+    1)
+SELECT
+  ENG.Base_Engagement,
+  SUM(ENG.EngAmount) AS ENGAGEMENT,
+  SUM(CORPPERF.CorpENG) AS CORPORATE,
+  /*CASE
+    WHEN eng.EngAmount=CORPPERF.CorpENG THEN 'To check!'
+  ELSE
+  "OK"
+END
+  AS Condition,
+  SAFE_SUBTRACT(SUM(ENG.EngAmount),SUM(CORPPERF.CorpENG)) AS Difference*/
+FROM
+  ENG
+LEFT JOIN
+  CORPPERF
+ON
+  ENG.Base_Engagement=CORPPERF.Base_Engagement
+GROUP BY
+  1
+HAVING
+  SUM(ENG.EngAmount)!=SUM(CORPPERF.CorpENG)
+  AND SAFE_SUBTRACT(SUM(ENG.EngAmount),SUM(CORPPERF.CorpENG)) > 1000
+  OR SAFE_SUBTRACT(SUM(ENG.EngAmount),SUM(CORPPERF.CorpENG)) < -1000
+ORDER BY
+  SAFE_SUBTRACT(SUM(ENG.EngAmount),SUM(CORPPERF.CorpENG)) DESC
+  
+  
+  #list of engagements with disparities
+  
+/*Disparities IN the engagements amounts
+Here I will pull OUT the total amount OF money FOR those engagements IN which there IS a mismatch higher than 1000 BETWEEN both datasets the comparison IS coming from
+summing the engagments individually IN the mentioned datasets. Ultimately this generates the list OF engagements that don't match*/
+WITH
+  ENG AS (
+  SELECT
+    Base_Engagement,
+    SUM(Partner_Engagement_Addition_Amount) AS EngAmount
+  FROM
+    `unopsreportinguat.Engagements.Engagement_Funding_Sources_AE`
+  WHERE
+    Finalised_Flag ="Yes"
+  GROUP BY
+    1),
+  CORPPERF AS (
+  SELECT
+    Base_Engagement,
+    SUM(EA_Amount) AS CorpENG
+  FROM
+    `unopsreporting.Corporate_Performance.Corporate_Performance_Details_Report`
+  GROUP BY
+    1)
+SELECT
+  ENG.Base_Engagement,
+  SUM(ENG.EngAmount) AS ENGAGEMENT,
+  SUM(CORPPERF.CorpENG) AS CORPORATE,
+  /*CASE
+    WHEN eng.EngAmount=CORPPERF.CorpENG THEN 'To check!'
+  ELSE
+  "OK"
+END
+  AS Condition,
+  SAFE_SUBTRACT(SUM(ENG.EngAmount),SUM(CORPPERF.CorpENG)) AS Difference*/
+FROM
+  ENG
+LEFT JOIN
+  CORPPERF
+ON
+  ENG.Base_Engagement=CORPPERF.Base_Engagement
+GROUP BY
+  1
+HAVING
+  SUM(ENG.EngAmount)!=SUM(CORPPERF.CorpENG)
+  AND SAFE_SUBTRACT(SUM(ENG.EngAmount),SUM(CORPPERF.CorpENG)) > 1000
+  OR SAFE_SUBTRACT(SUM(ENG.EngAmount),SUM(CORPPERF.CorpENG)) < -1000
+ORDER BY
+  SAFE_SUBTRACT(SUM(ENG.EngAmount),SUM(CORPPERF.CorpENG)) DESC  
+  
